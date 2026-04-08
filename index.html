@@ -3,1244 +3,615 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO Dashboard — PeopleConnect</title>
+<title>SEO Weekly Scorecard — PeopleConnect Brands</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f5f5f4;
+  --color-background-tertiary:#fafaf9;
+  --color-background-info:#e0ecf7;
+  --color-border-secondary:#d6d3d1;
+  --color-border-tertiary:#e7e5e4;
+  --color-text-primary:#1c1917;
+  --color-text-secondary:#57534e;
+  --color-text-tertiary:#a8a29e;
+  --color-text-info:#185FA5;
+  --border-radius-lg:12px;
+  --border-radius-md:8px;
+}
+</style>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.ls-shell{background:var(--color-background-tertiary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);overflow:hidden;font-size:13px}
+.ls-topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:10px 16px;display:flex;align-items:center;gap:12px}
+.ls-logo{font-size:12px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.02em}
+.ls-title{font-size:13px;font-weight:500;color:var(--color-text-primary);flex:1}
+.ls-share{font-size:11px;padding:4px 10px;background:var(--color-background-info);color:var(--color-text-info);border-radius:20px;cursor:pointer}
+.ls-nav{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:0 16px;display:flex;gap:0;overflow-x:auto}
+.ls-tab{font-size:12px;padding:8px 14px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.ls-tab.active{color:var(--color-text-info);border-bottom-color:#185FA5;font-weight:500}
+.ls-canvas{background:#f8f7f4;padding:16px;min-height:580px}
+.page{display:none}.page.active{display:block}
 
-  :root {
-    --teal:       #0F6E56;
-    --teal-light: #E1F5EE;
-    --teal-mid:   #1D9E75;
-    --blue:       #185FA5;
-    --blue-light: #E6F1FB;
-    --green-bg:   #EAF3DE;
-    --green-text: #27500A;
-    --green-border:#97C459;
-    --amber-bg:   #FAEEDA;
-    --amber-text: #633806;
-    --amber-border:#EF9F27;
-    --red-bg:     #FCEBEB;
-    --red-text:   #791F1F;
-    --red-border: #F09595;
-    --gray-bg:    #F1EFE8;
-    --gray-mid:   #D3D1C7;
-    --gray-text:  #5F5E5A;
-    --text-primary:   #2C2C2A;
-    --text-secondary: #5F5E5A;
-    --text-tertiary:  #888780;
-    --bg-page:    #F4F3EF;
-    --bg-surface: #FFFFFF;
-    --border:     rgba(0,0,0,0.1);
-    --border-med: rgba(0,0,0,0.18);
-  }
+.dash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.dash-title{font-size:16px;font-weight:500;color:#0F6E56}
+.dash-subtitle{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.date-chip{font-size:11px;padding:4px 10px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:20px;color:var(--color-text-secondary)}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg-page);
-    color: var(--text-primary);
-    font-size: 13px;
-    line-height: 1.5;
-  }
+.score-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.score-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px}
+.score-card.green{background:#EAF3DE;border-color:#97C459}
+.score-card.amber{background:#FAEEDA;border-color:#EF9F27}
+.score-card.red{background:#FCEBEB;border-color:#F09595}
+.score-brand{font-size:10px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px}
+.score-brand.green{color:#27500A}
+.score-brand.amber{color:#633806}
+.score-brand.red{color:#791F1F}
+.score-num{font-size:20px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.score-num.green{color:#27500A}
+.score-num.amber{color:#633806}
+.score-num.red{color:#791F1F}
+.score-target{font-size:10px;color:var(--color-text-tertiary);margin-top:3px}
+.score-pct{font-size:12px;font-weight:500;margin-top:4px}
+.score-pct.green{color:#3B6D11}
+.score-pct.amber{color:#854F0B}
+.score-pct.red{color:#A32D2D}
 
-  /* ── PASSWORD GATE ── */
-  #gate {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-page);
-  }
-  #gate-card {
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border-med);
-    border-radius: 12px;
-    padding: 40px 44px;
-    width: 360px;
-    text-align: center;
-  }
-  #gate-logo {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  #gate-title {
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--teal);
-    margin-bottom: 6px;
-  }
-  #gate-sub {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    margin-bottom: 28px;
-  }
-  #gate-input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 0.5px solid var(--border-med);
-    border-radius: 8px;
-    font-size: 14px;
-    color: var(--text-primary);
-    background: var(--bg-surface);
-    margin-bottom: 10px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  #gate-input:focus { border-color: var(--teal); }
-  #gate-btn {
-    width: 100%;
-    padding: 10px;
-    background: var(--teal);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-  #gate-btn:hover { opacity: 0.88; }
-  #gate-error {
-    font-size: 12px;
-    color: var(--red-text);
-    margin-top: 10px;
-    min-height: 18px;
-  }
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chart-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.chart-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-name{font-size:11px;color:var(--color-text-secondary);width:28px;text-align:right;flex-shrink:0}
+.bar-track{flex:1;background:var(--color-background-secondary);border-radius:2px;height:14px;position:relative}
+.bar-fill{height:14px;border-radius:2px;display:flex;align-items:center;justify-content:flex-end;padding-right:4px}
+.bar-pct{font-size:10px;font-weight:500}
+.ref-line{position:absolute;top:0;bottom:0;width:1px;background:#0F6E56;opacity:0.6}
 
-  /* ── SHELL ── */
-  #app { display: none; }
+.summary-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.summary-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px}
+.summary-text{font-size:11px;color:var(--color-text-secondary);line-height:1.6}
 
-  .topbar {
-    background: var(--bg-surface);
-    border-bottom: 0.5px solid var(--border);
-    padding: 0 20px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .topbar-logo {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .topbar-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
-    flex: 1;
-  }
-  .topbar-refresh {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    white-space: nowrap;
-  }
-  .topbar-refresh span {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--green-border);
-    margin-right: 5px;
-    vertical-align: middle;
-  }
-  .topbar-refresh span.loading {
-    background: var(--amber-border);
-    animation: pulse 1s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.kpi-label{font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px}
+.kpi-val{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.kpi-sub{font-size:10px;color:var(--color-text-tertiary);margin-top:2px}
 
-  .navbar {
-    background: var(--bg-surface);
-    border-bottom: 0.5px solid var(--border);
-    padding: 0 20px;
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-  }
-  .nav-tab {
-    font-size: 12px;
-    padding: 10px 16px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    transition: color 0.15s;
-    user-select: none;
-  }
-  .nav-tab:hover { color: var(--text-primary); }
-  .nav-tab.active {
-    color: var(--blue);
-    border-bottom-color: var(--blue);
-    font-weight: 500;
-  }
+.trend-table{width:100%;border-collapse:collapse;font-size:11px}
+.trend-table th{background:#0F6E56;color:#fff;padding:5px 8px;text-align:left;font-weight:500}
+.trend-table td{padding:5px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.trend-table tr:nth-child(even) td{background:var(--color-background-secondary)}
+.trend-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.brand-section{margin-bottom:20px}
+.brand-head{font-size:12px;font-weight:500;color:#185FA5;margin-bottom:6px;padding-bottom:4px;border-bottom:0.5px solid var(--color-border-tertiary)}
 
-  .canvas {
-    padding: 20px;
-    max-width: 1280px;
-    margin: 0 auto;
-  }
+.spark{display:inline-flex;align-items:flex-end;gap:2px;height:28px;margin-left:8px;vertical-align:middle}
+.spark-bar{width:5px;background:#185FA5;border-radius:1px;opacity:0.7}
 
-  .page { display: none; }
-  .page.active { display: block; }
+.exp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.exp-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.exp-name{font-size:10px;color:var(--color-text-tertiary);margin-bottom:6px;font-style:italic}
+.exp-brand{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+.exp-row{display:flex;justify-content:space-between;margin-bottom:8px}
+.variant-box{flex:1;text-align:center;padding:8px 6px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
+.variant-box.winner{background:#EAF3DE;border-color:#97C459}
+.variant-box.loser{background:var(--color-background-secondary)}
+.variant-label{font-size:10px;color:var(--color-text-tertiary);margin-bottom:2px}
+.variant-rate{font-size:16px;font-weight:500}
+.variant-rate.green{color:#27500A}
+.variant-rate.gray{color:var(--color-text-secondary)}
+.exp-vs{font-size:10px;color:var(--color-text-tertiary);display:flex;align-items:center;padding:0 6px}
+.lift-badge{font-size:10px;font-weight:500;background:#EAF3DE;color:#27500A;border-radius:20px;padding:2px 8px;display:inline-block;margin-top:6px}
+.lift-neg{background:#FCEBEB;color:#791F1F}
 
-  /* ── LOADING STATE ── */
-  .loading-overlay {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-tertiary);
-    font-size: 13px;
-  }
-  .spinner {
-    width: 24px; height: 24px;
-    border: 2px solid var(--gray-mid);
-    border-top-color: var(--teal);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.gsc-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.ctr-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+.ctr-card.good{background:#EAF3DE;border-color:#97C459}
+.ctr-card.mid{background:var(--color-background-secondary)}
+.ctr-card.low{background:#FAEEDA;border-color:#EF9F27}
+.ctr-brand{font-size:10px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px}
+.ctr-val{font-size:18px;font-weight:500}
+.ctr-val.good{color:#27500A}
+.ctr-val.mid{color:var(--color-text-secondary)}
+.ctr-val.low{color:#633806}
 
-  /* ── SHARED COMPONENTS ── */
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 16px;
-  }
-  .page-title {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--teal);
-  }
-  .page-sub {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    margin-top: 3px;
-  }
-  .date-chip {
-    font-size: 11px;
-    padding: 4px 12px;
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border-med);
-    border-radius: 20px;
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
+.def-section{margin-bottom:16px}
+.def-head{font-size:12px;font-weight:500;color:#0F6E56;margin-bottom:8px;padding-bottom:4px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.def-table{width:100%;border-collapse:collapse;font-size:11px}
+.def-table td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top}
+.def-table td:first-child{font-weight:500;color:var(--color-text-primary);width:160px;white-space:nowrap}
+.def-table tr:nth-child(even) td{background:var(--color-background-secondary)}
+.note-box{background:#FAEEDA;border-radius:0;padding:10px 12px;font-size:11px;color:#633806;margin-top:12px;border-left:3px solid #EF9F27}
 
-  .section-label {
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
+/* AEO styles */
+.aeo-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.aeo-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px}
+.aeo-card.high{background:#EAF3DE;border-color:#97C459}
+.aeo-card.none{background:var(--color-background-secondary);border-color:var(--color-border-tertiary)}
+.aeo-brand{font-size:10px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px}
+.aeo-val{font-size:18px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.aeo-val.green{color:#27500A}
+.aeo-val.muted{color:var(--color-text-tertiary)}
+.aeo-sub{font-size:10px;color:var(--color-text-tertiary);margin-top:3px}
+.aeo-wow{font-size:10px;font-weight:500;margin-top:4px}
+.aeo-wow.up{color:#3B6D11}
+.aeo-wow.down{color:#A32D2D}
+.aeo-wow.flat{color:var(--color-text-tertiary)}
 
-  /* ── SCORE CARDS ── */
-  .score-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  @media (max-width: 700px) {
-    .score-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  }
-  .score-card {
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-  }
-  .score-card.green { background: var(--green-bg); border-color: var(--green-border); }
-  .score-card.amber { background: var(--amber-bg); border-color: var(--amber-border); }
-  .score-card.red   { background: var(--red-bg);   border-color: var(--red-border); }
-  .score-brand {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-tertiary);
-    margin-bottom: 4px;
-  }
-  .score-card.green .score-brand { color: var(--green-text); }
-  .score-card.amber .score-brand { color: var(--amber-text); }
-  .score-card.red   .score-brand { color: var(--red-text); }
-  .score-num {
-    font-size: 22px;
-    font-weight: 500;
-    line-height: 1;
-    color: var(--text-primary);
-  }
-  .score-card.green .score-num { color: var(--green-text); }
-  .score-card.amber .score-num { color: var(--amber-text); }
-  .score-card.red   .score-num { color: var(--red-text); }
-  .score-target {
-    font-size: 10px;
-    color: var(--text-tertiary);
-    margin-top: 3px;
-  }
-  .score-pct {
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: 5px;
-  }
-  .score-card.green .score-pct { color: var(--green-text); }
-  .score-card.amber .score-pct { color: var(--amber-text); }
-  .score-card.red   .score-pct { color: var(--red-text); }
-
-  /* ── KPI ROW ── */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  @media (max-width: 600px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
-  .kpi {
-    background: var(--gray-bg);
-    border-radius: 8px;
-    padding: 12px 14px;
-  }
-  .kpi-label { font-size: 10px; color: var(--text-tertiary); margin-bottom: 4px; }
-  .kpi-val   { font-size: 20px; font-weight: 500; color: var(--text-primary); }
-  .kpi-sub   { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
-
-  /* ── BOTTOM ROW ── */
-  .bottom-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  @media (max-width: 700px) { .bottom-row { grid-template-columns: 1fr; } }
-
-  .chart-card, .summary-card {
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-  }
-  .chart-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-  }
-
-  /* ── BAR CHART ── */
-  .bar-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 7px;
-  }
-  .bar-name {
-    font-size: 11px;
-    color: var(--text-secondary);
-    width: 30px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-  .bar-track {
-    flex: 1;
-    background: var(--gray-bg);
-    border-radius: 3px;
-    height: 18px;
-    position: relative;
-  }
-  .bar-fill {
-    height: 18px;
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 6px;
-    min-width: 36px;
-    transition: width 0.6s ease;
-  }
-  .bar-pct { font-size: 10px; font-weight: 500; }
-  .ref-line {
-    position: absolute;
-    top: -3px; bottom: -3px;
-    width: 1.5px;
-    background: var(--teal);
-    opacity: 0.7;
-  }
-  .bar-legend {
-    font-size: 10px;
-    color: var(--teal);
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .bar-legend::before {
-    content: '';
-    display: inline-block;
-    width: 14px;
-    height: 1.5px;
-    background: var(--teal);
-    border-top: 1.5px dashed var(--teal);
-  }
-
-  /* ── EXEC SUMMARY ── */
-  .summary-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-  }
-  .summary-text {
-    font-size: 12px;
-    color: var(--text-secondary);
-    line-height: 1.65;
-    white-space: pre-line;
-  }
-  .summary-source {
-    font-size: 10px;
-    color: var(--text-tertiary);
-    font-style: italic;
-    margin-top: 10px;
-  }
-
-  /* ── TREND TABLES ── */
-  .brand-section { margin-bottom: 24px; }
-  .brand-head {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--blue);
-    margin-bottom: 8px;
-    padding-bottom: 5px;
-    border-bottom: 0.5px solid var(--border-med);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .spark {
-    display: inline-flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 16px;
-  }
-  .spark-bar {
-    width: 4px;
-    background: var(--blue);
-    opacity: 0.5;
-    border-radius: 1px;
-  }
-
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11px;
-  }
-  .data-table th {
-    background: var(--teal);
-    color: #fff;
-    padding: 6px 9px;
-    text-align: left;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .data-table th.num, .data-table td.num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .data-table td {
-    padding: 6px 9px;
-    border-bottom: 0.5px solid var(--border);
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
-  .data-table tr:nth-child(even) td { background: var(--gray-bg); }
-  .data-table .mtd-row td {
-    font-weight: 500;
-    color: var(--text-primary);
-    border-top: 1px solid var(--border-med);
-  }
-  .pct-green { color: var(--green-text) !important; font-weight: 500; }
-  .pct-amber { color: var(--amber-text) !important; font-weight: 500; }
-  .pct-red   { color: var(--red-text) !important;   font-weight: 500; }
-
-  /* ── BUCKET TESTS ── */
-  .exp-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  @media (max-width: 700px) { .exp-grid { grid-template-columns: 1fr; } }
-  .exp-card {
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-  }
-  .exp-slug { font-size: 10px; color: var(--text-tertiary); font-style: italic; margin-bottom: 4px; }
-  .exp-brand { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px; }
-  .exp-variants {
-    display: flex;
-    gap: 8px;
-    align-items: stretch;
-    margin-bottom: 10px;
-  }
-  .variant-box {
-    flex: 1;
-    text-align: center;
-    padding: 10px 8px;
-    border-radius: 8px;
-    border: 0.5px solid var(--border);
-    background: var(--gray-bg);
-  }
-  .variant-box.winner { background: var(--green-bg); border-color: var(--green-border); }
-  .variant-label { font-size: 10px; color: var(--text-tertiary); margin-bottom: 3px; }
-  .variant-box.winner .variant-label { color: var(--green-text); }
-  .variant-rate { font-size: 18px; font-weight: 500; color: var(--text-secondary); }
-  .variant-box.winner .variant-rate { color: var(--green-text); }
-  .exp-vs {
-    font-size: 10px;
-    color: var(--text-tertiary);
-    display: flex;
-    align-items: center;
-    padding: 0 2px;
-  }
-  .lift-badge {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: var(--green-bg);
-    color: var(--green-text);
-  }
-  .lift-badge.neg { background: var(--red-bg); color: var(--red-text); }
-  .lift-badge.flat { background: var(--gray-bg); color: var(--gray-text); }
-
-  /* ── GSC ── */
-  .ctr-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  @media (max-width: 700px) { .ctr-grid { grid-template-columns: repeat(3, 1fr); } }
-  .ctr-card {
-    background: var(--bg-surface);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-  }
-  .ctr-card.good  { background: var(--green-bg); border-color: var(--green-border); }
-  .ctr-card.low   { background: var(--amber-bg); border-color: var(--amber-border); }
-  .ctr-brand { font-size: 10px; font-weight: 500; color: var(--text-tertiary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .ctr-card.good .ctr-brand { color: var(--green-text); }
-  .ctr-card.low  .ctr-brand { color: var(--amber-text); }
-  .ctr-val { font-size: 20px; font-weight: 500; color: var(--text-secondary); }
-  .ctr-card.good .ctr-val { color: var(--green-text); }
-  .ctr-card.low  .ctr-val { color: var(--amber-text); }
-  .ctr-metric-label { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
-
-  .imp-bars { margin-bottom: 8px; }
-  .imp-brand-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .imp-name { width: 30px; text-align: right; font-size: 11px; color: var(--text-secondary); flex-shrink: 0; }
-  .imp-track { flex: 1; }
-  .imp-bar-imp, .imp-bar-clk {
-    height: 7px;
-    border-radius: 2px;
-    margin-bottom: 2px;
-  }
-  .imp-bar-imp { background: var(--blue); opacity: 0.7; }
-  .imp-bar-clk { background: var(--blue); opacity: 0.35; }
-  .imp-nums { font-size: 10px; color: var(--text-tertiary); white-space: nowrap; flex-shrink: 0; }
-
-  /* ── DEFINITIONS ── */
-  .def-section { margin-bottom: 20px; }
-  .def-head {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--teal);
-    margin-bottom: 8px;
-    padding-bottom: 5px;
-    border-bottom: 0.5px solid var(--border-med);
-  }
-  .def-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .def-table td {
-    padding: 7px 10px;
-    border-bottom: 0.5px solid var(--border);
-    color: var(--text-secondary);
-    vertical-align: top;
-    line-height: 1.5;
-  }
-  .def-table td:first-child {
-    font-weight: 500;
-    color: var(--text-primary);
-    width: 180px;
-    white-space: nowrap;
-  }
-  .def-table tr:nth-child(even) td { background: var(--gray-bg); }
-  .note-box {
-    background: var(--amber-bg);
-    border-left: 3px solid var(--amber-border);
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--amber-text);
-    margin-top: 14px;
-    line-height: 1.6;
-  }
-
-  /* ── ERROR BANNER ── */
-  .error-banner {
-    background: var(--amber-bg);
-    border: 0.5px solid var(--amber-border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--amber-text);
-    margin-bottom: 14px;
-    display: none;
-  }
+/* Bucket analysis card */
+.analysis-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;margin-top:12px}
+.analysis-text{font-size:11px;color:var(--color-text-secondary);line-height:1.6}
 </style>
 </head>
-<body>
+<body style="margin:0;padding:24px;background:#e7e5e4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
 
-<!-- PASSWORD GATE -->
-<div id="gate">
-  <div id="gate-card">
-    <div id="gate-logo">PeopleConnect · Internal</div>
-    <div id="gate-title">SEO Dashboard</div>
-    <div id="gate-sub">Enter your access password to continue</div>
-    <input type="password" id="gate-input" placeholder="Password" autocomplete="current-password">
-    <button id="gate-btn" onclick="checkPassword()">Access dashboard</button>
-    <div id="gate-error"></div>
+<div class="ls-shell">
+  <div class="ls-topbar">
+    <div class="ls-logo">Looker Studio</div>
+    <div class="ls-title">SEO weekly scorecard — PeopleConnect brands</div>
+    <div class="ls-share">Share</div>
   </div>
-</div>
-
-<!-- DASHBOARD APP -->
-<div id="app">
-  <div class="topbar">
-    <div class="topbar-logo">PeopleConnect SEO</div>
-    <div class="topbar-title">Weekly scorecard</div>
-    <div class="topbar-refresh" id="refresh-status">
-      <span id="status-dot"></span>
-      <span id="status-text">Loading…</span>
-    </div>
+  <div class="ls-nav">
+    <div class="ls-tab active" onclick="showPage('p1',this)">Executive scorecard</div>
+    <div class="ls-tab" onclick="showPage('p2',this)">Brand detail</div>
+    <div class="ls-tab" onclick="showPage('p3',this)">Bucket tests</div>
+    <div class="ls-tab" onclick="showPage('p4',this)">AEO metrics</div>
+    <div class="ls-tab" onclick="showPage('p5',this)">Search appearance</div>
+    <div class="ls-tab" onclick="showPage('p6',this)">Data definitions</div>
   </div>
+  <div class="ls-canvas">
 
-  <div class="navbar">
-    <div class="nav-tab active"  onclick="showPage('p1',this)">Executive scorecard</div>
-    <div class="nav-tab"         onclick="showPage('p2',this)">Brand detail</div>
-    <div class="nav-tab"         onclick="showPage('p3',this)">Bucket tests</div>
-    <div class="nav-tab"         onclick="showPage('p4',this)">Search appearance</div>
-    <div class="nav-tab"         onclick="showPage('p5',this)">Data definitions</div>
-  </div>
-
-  <div class="canvas">
-    <div id="error-banner" class="error-banner"></div>
-
-    <!-- PAGE 1: EXECUTIVE SCORECARD -->
+    <!-- ==================== PAGE 1: EXECUTIVE SCORECARD ==================== -->
     <div id="p1" class="page active">
-      <div class="loading-overlay" id="p1-loading"><div class="spinner"></div>Loading data…</div>
-      <div id="p1-content" style="display:none">
-        <div class="page-header">
-          <div>
-            <div class="page-title" id="p1-title">Week of —</div>
-            <div class="page-sub">Refreshed from Google Sheets · Source: Snowflake + GSC</div>
-          </div>
-          <div class="date-chip" id="p1-daterange">—</div>
+      <div class="dash-header">
+        <div><div class="dash-title">Week of Apr 3–9, 2026</div><div class="dash-subtitle">Refreshed Apr 8, 2026 1:37 pm · Source: Snowflake + GSC</div></div>
+        <div class="date-chip">Apr 3 – Apr 9</div>
+      </div>
+      <div class="score-grid">
+        <div class="score-card red">
+          <div class="score-brand red">ICM</div>
+          <div class="score-num red">58</div>
+          <div class="score-target">target 231</div>
+          <div class="score-pct red">25% to goal</div>
         </div>
-        <div class="section-label">Business outcomes — this week</div>
-        <div class="score-grid" id="score-grid"></div>
-        <div class="kpi-row" id="kpi-row"></div>
-        <div class="bottom-row">
-          <div class="chart-card">
-            <div class="chart-label">% to goal by brand — this week</div>
-            <div id="bar-chart"></div>
-            <div class="bar-legend">100% goal line</div>
-          </div>
-          <div class="summary-card">
-            <div class="summary-label" id="summary-label">Executive summary</div>
-            <div class="summary-text" id="summary-text">—</div>
-            <div class="summary-source">Generated via Claude · Apps Script</div>
-          </div>
+        <div class="score-card amber">
+          <div class="score-brand amber">INT</div>
+          <div class="score-num amber">614</div>
+          <div class="score-target">target 923</div>
+          <div class="score-pct amber">67% to goal</div>
+        </div>
+        <div class="score-card green">
+          <div class="score-brand green">OW</div>
+          <div class="score-num green">34</div>
+          <div class="score-target">target 38</div>
+          <div class="score-pct green">89% to goal</div>
+        </div>
+        <div class="score-card red">
+          <div class="score-brand red">TF</div>
+          <div class="score-num red">394</div>
+          <div class="score-target">target 1,207</div>
+          <div class="score-pct red">33% to goal</div>
+        </div>
+        <div class="score-card amber">
+          <div class="score-brand amber">USS</div>
+          <div class="score-num amber">28</div>
+          <div class="score-target">target 53</div>
+          <div class="score-pct amber">53% to goal</div>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-label">Total impressions</div><div class="kpi-val">7.7M</div><div class="kpi-sub">all brands</div></div>
+        <div class="kpi"><div class="kpi-label">Total clicks</div><div class="kpi-val">341K</div><div class="kpi-sub">all brands</div></div>
+        <div class="kpi"><div class="kpi-label">Avg CTR</div><div class="kpi-val">4.5%</div><div class="kpi-sub">core brands</div></div>
+        <div class="kpi"><div class="kpi-label">Core gross adds</div><div class="kpi-val">1,094</div><div class="kpi-sub">45% to goal</div></div>
+      </div>
+      <div class="bottom-row">
+        <div class="chart-card">
+          <div class="chart-label">% to goal by brand — week of Apr 3–9</div>
+          <div class="bar-row"><div class="bar-name">OW</div><div class="bar-track"><div class="bar-fill" style="width:89%;background:#EAF3DE;border:0.5px solid #97C459"><span class="bar-pct" style="color:#27500A">89%</span></div><div class="ref-line" style="left:100%"></div></div></div>
+          <div class="bar-row"><div class="bar-name">INT</div><div class="bar-track"><div class="bar-fill" style="width:67%;background:#FAEEDA;border:0.5px solid #EF9F27"><span class="bar-pct" style="color:#633806">67%</span></div><div class="ref-line" style="left:100%"></div></div></div>
+          <div class="bar-row"><div class="bar-name">USS</div><div class="bar-track"><div class="bar-fill" style="width:53%;background:#FAEEDA;border:0.5px solid #EF9F27"><span class="bar-pct" style="color:#633806">53%</span></div><div class="ref-line" style="left:100%"></div></div></div>
+          <div class="bar-row"><div class="bar-name">TF</div><div class="bar-track"><div class="bar-fill" style="width:33%;background:#FCEBEB;border:0.5px solid #F09595"><span class="bar-pct" style="color:#791F1F">33%</span></div><div class="ref-line" style="left:100%"></div></div></div>
+          <div class="bar-row"><div class="bar-name">ICM</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:#FCEBEB;border:0.5px solid #F09595"><span class="bar-pct" style="color:#791F1F">25%</span></div><div class="ref-line" style="left:100%"></div></div></div>
+          <div style="font-size:10px;color:#0F6E56;margin-top:8px">— 100% goal line</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Executive summary — week of Apr 3–9</div>
+          <div class="summary-text">Core SEO brands (ICM, TF, INT, USS) totaled 1,094 gross adds, reaching 45% of target (2,414).<br><br>OmniWatch led at 89% to goal. Intelius at 67%, USSearch at 53%, TruthFinder at 33%, InstantCheckmate at 25%.<br><br>Organic search generated 7.7M impressions and ~341K clicks. CTR ranged from 2.6% (USS) to 5.3% (TF).<br><br>OmniWatch delivered 89% to goal for the week.<br><br>April MTD: Core brands at 1,523 gross adds (54% to goal). OW at 66 (153% to goal).<br><br><span style="color:var(--color-text-tertiary);font-style:italic">Generated via Claude · Apps Script</span></div>
         </div>
       </div>
     </div>
 
-    <!-- PAGE 2: BRAND DETAIL -->
+    <!-- ==================== PAGE 2: BRAND DETAIL ==================== -->
     <div id="p2" class="page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Brand detail — 4-week rolling</div>
-          <div class="page-sub" id="p2-sub">—</div>
-        </div>
+      <div class="dash-header">
+        <div><div class="dash-title">Brand detail — 5-week rolling</div><div class="dash-subtitle">Mar 6 – Apr 9, 2026</div></div>
       </div>
-      <div id="p2-content">
-        <div class="loading-overlay"><div class="spinner"></div>Loading data…</div>
+
+      <!-- Intelius -->
+      <div class="brand-section">
+        <div class="brand-head">Intelius SEO
+          <span class="spark">
+            <div class="spark-bar" style="height:22px"></div>
+            <div class="spark-bar" style="height:24px"></div>
+            <div class="spark-bar" style="height:24px"></div>
+            <div class="spark-bar" style="height:23px"></div>
+            <div class="spark-bar" style="height:16px"></div>
+          </span>
+        </div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Gross adds</th><th class="num">Target</th><th class="num">% to goal</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Avg Pos</th><th class="num">Conv rate</th></tr>
+          <tr><td>Mar 6–12</td><td class="num">870</td><td class="num">979</td><td class="num">89%</td><td class="num">8.60M</td><td class="num">325.6K</td><td class="num">3.8%</td><td class="num">7.3</td><td class="num">0.27%</td></tr>
+          <tr><td>Mar 13–19</td><td class="num">918</td><td class="num">979</td><td class="num">94%</td><td class="num">8.54M</td><td class="num">359.4K</td><td class="num">4.2%</td><td class="num">7.1</td><td class="num">0.26%</td></tr>
+          <tr><td>Mar 20–26</td><td class="num">947</td><td class="num">979</td><td class="num">97%</td><td class="num">8.15M</td><td class="num">355.7K</td><td class="num">4.4%</td><td class="num">7.0</td><td class="num">0.27%</td></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">914</td><td class="num">1,011</td><td class="num">90%</td><td class="num">8.78M</td><td class="num">346.8K</td><td class="num">3.9%</td><td class="num">6.4</td><td class="num">0.26%</td></tr>
+          <tr><td>Apr 3–9</td><td class="num">614</td><td class="num">923</td><td class="num">67%</td><td class="num">3.92M</td><td class="num">175.6K</td><td class="num">4.5%</td><td class="num">6.8</td><td class="num">0.35%</td></tr>
+          <tr><td style="font-weight:500;color:var(--color-text-primary)">Apr MTD</td><td class="num" style="font-weight:500;color:var(--color-text-primary)">812</td><td class="num">1,084</td><td class="num" style="color:#27500A;font-weight:500">75%</td><td class="num">6.21M</td><td class="num">273.1K</td><td class="num">4.4%</td><td class="num">6.8</td><td class="num">0.30%</td></tr>
+        </table>
+      </div>
+
+      <!-- TruthFinder -->
+      <div class="brand-section">
+        <div class="brand-head">TruthFinder SEO
+          <span class="spark">
+            <div class="spark-bar" style="height:22px"></div>
+            <div class="spark-bar" style="height:20px"></div>
+            <div class="spark-bar" style="height:20px"></div>
+            <div class="spark-bar" style="height:18px"></div>
+            <div class="spark-bar" style="height:11px"></div>
+          </span>
+        </div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Gross adds</th><th class="num">Target</th><th class="num">% to goal</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Avg Pos</th><th class="num">Conv rate</th></tr>
+          <tr><td>Mar 6–12</td><td class="num">801</td><td class="num">1,259</td><td class="num">64%</td><td class="num">4.44M</td><td class="num">232.3K</td><td class="num">5.2%</td><td class="num">7.4</td><td class="num">0.34%</td></tr>
+          <tr><td>Mar 13–19</td><td class="num">731</td><td class="num">1,259</td><td class="num">58%</td><td class="num">4.25M</td><td class="num">233.3K</td><td class="num">5.5%</td><td class="num">7.6</td><td class="num">0.31%</td></tr>
+          <tr><td>Mar 20–26</td><td class="num">719</td><td class="num">1,259</td><td class="num">57%</td><td class="num">4.18M</td><td class="num">230.5K</td><td class="num">5.5%</td><td class="num">7.5</td><td class="num">0.31%</td></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">671</td><td class="num">1,306</td><td class="num">51%</td><td class="num">4.60M</td><td class="num">218.1K</td><td class="num">4.7%</td><td class="num">7.3</td><td class="num">0.31%</td></tr>
+          <tr><td>Apr 3–9</td><td class="num">394</td><td class="num">1,207</td><td class="num">33%</td><td class="num">2.18M</td><td class="num">115.1K</td><td class="num">5.3%</td><td class="num">7.7</td><td class="num">0.34%</td></tr>
+          <tr><td style="font-weight:500;color:var(--color-text-primary)">Apr MTD</td><td class="num" style="font-weight:500;color:var(--color-text-primary)">584</td><td class="num">1,417</td><td class="num" style="color:#633806;font-weight:500">41%</td><td class="num">3.34M</td><td class="num">177.4K</td><td class="num">5.3%</td><td class="num">7.7</td><td class="num">0.33%</td></tr>
+        </table>
+      </div>
+
+      <!-- InstantCheckmate -->
+      <div class="brand-section">
+        <div class="brand-head">InstantCheckmate SEO
+          <span class="spark">
+            <div class="spark-bar" style="height:22px"></div>
+            <div class="spark-bar" style="height:17px"></div>
+            <div class="spark-bar" style="height:17px"></div>
+            <div class="spark-bar" style="height:15px"></div>
+            <div class="spark-bar" style="height:9px"></div>
+          </span>
+        </div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Gross adds</th><th class="num">Target</th><th class="num">% to goal</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Avg Pos</th><th class="num">Conv rate</th></tr>
+          <tr><td>Mar 6–12</td><td class="num">138</td><td class="num">224</td><td class="num">62%</td><td class="num">1.25M</td><td class="num">51.3K</td><td class="num">4.1%</td><td class="num">9.4</td><td class="num">0.27%</td></tr>
+          <tr><td>Mar 13–19</td><td class="num">106</td><td class="num">224</td><td class="num">47%</td><td class="num">1.12M</td><td class="num">47.9K</td><td class="num">4.3%</td><td class="num">9.7</td><td class="num">0.22%</td></tr>
+          <tr><td>Mar 20–26</td><td class="num">104</td><td class="num">224</td><td class="num">46%</td><td class="num">1.10M</td><td class="num">47.3K</td><td class="num">4.3%</td><td class="num">9.9</td><td class="num">0.22%</td></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">102</td><td class="num">238</td><td class="num">43%</td><td class="num">1.13M</td><td class="num">44.9K</td><td class="num">4.0%</td><td class="num">9.3</td><td class="num">0.23%</td></tr>
+          <tr><td>Apr 3–9</td><td class="num">58</td><td class="num">231</td><td class="num">25%</td><td class="num">557K</td><td class="num">24.1K</td><td class="num">4.3%</td><td class="num">9.6</td><td class="num">0.24%</td></tr>
+          <tr><td style="font-weight:500;color:var(--color-text-primary)">Apr MTD</td><td class="num" style="font-weight:500;color:var(--color-text-primary)">91</td><td class="num">271</td><td class="num" style="color:#791F1F;font-weight:500">34%</td><td class="num">843K</td><td class="num">37.1K</td><td class="num">4.4%</td><td class="num">9.8</td><td class="num">0.25%</td></tr>
+        </table>
+      </div>
+
+      <!-- USSearch -->
+      <div class="brand-section">
+        <div class="brand-head">USSearch SEO
+          <span class="spark">
+            <div class="spark-bar" style="height:22px"></div>
+            <div class="spark-bar" style="height:13px"></div>
+            <div class="spark-bar" style="height:18px"></div>
+            <div class="spark-bar" style="height:11px"></div>
+            <div class="spark-bar" style="height:16px"></div>
+          </span>
+        </div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Gross adds</th><th class="num">Target</th><th class="num">% to goal</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Avg Pos</th><th class="num">Conv rate</th></tr>
+          <tr><td>Mar 6–12</td><td class="num">45</td><td class="num">63</td><td class="num">71%</td><td class="num">1.71M</td><td class="num">43.0K</td><td class="num">2.5%</td><td class="num">8.0</td><td class="num">0.10%</td></tr>
+          <tr><td>Mar 13–19</td><td class="num">27</td><td class="num">63</td><td class="num">43%</td><td class="num">1.47M</td><td class="num">39.3K</td><td class="num">2.7%</td><td class="num">8.1</td><td class="num">0.07%</td></tr>
+          <tr><td>Mar 20–26</td><td class="num">37</td><td class="num">63</td><td class="num">59%</td><td class="num">1.23M</td><td class="num">33.2K</td><td class="num">2.7%</td><td class="num">8.1</td><td class="num">0.11%</td></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">23</td><td class="num">63</td><td class="num">37%</td><td class="num">1.36M</td><td class="num">31.7K</td><td class="num">2.3%</td><td class="num">8.2</td><td class="num">0.07%</td></tr>
+          <tr><td>Apr 3–9</td><td class="num">28</td><td class="num">53</td><td class="num">53%</td><td class="num">996K</td><td class="num">26.3K</td><td class="num">2.6%</td><td class="num">11.0</td><td class="num">0.11%</td></tr>
+          <tr><td style="font-weight:500;color:var(--color-text-primary)">Apr MTD</td><td class="num" style="font-weight:500;color:var(--color-text-primary)">36</td><td class="num">63</td><td class="num" style="color:#633806;font-weight:500">57%</td><td class="num">1.40M</td><td class="num">36.6K</td><td class="num">2.6%</td><td class="num">10.4</td><td class="num">0.10%</td></tr>
+        </table>
+      </div>
+
+      <!-- OmniWatch -->
+      <div class="brand-section">
+        <div class="brand-head">OmniWatch Organic
+          <span class="spark">
+            <div class="spark-bar" style="height:14px"></div>
+            <div class="spark-bar" style="height:24px"></div>
+            <div class="spark-bar" style="height:20px"></div>
+            <div class="spark-bar" style="height:22px"></div>
+            <div class="spark-bar" style="height:11px"></div>
+          </span>
+        </div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Gross adds</th><th class="num">Target</th><th class="num">% to goal</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Avg Pos</th><th class="num">GA4 Sessions</th></tr>
+          <tr><td>Mar 6–12</td><td class="num">36</td><td class="num">29</td><td class="num" style="color:#27500A">124%</td><td class="num">35.9K</td><td class="num">344</td><td class="num">1.0%</td><td class="num">14.0</td><td class="num">11,032</td></tr>
+          <tr><td>Mar 13–19</td><td class="num">59</td><td class="num">29</td><td class="num" style="color:#27500A">203%</td><td class="num">31.3K</td><td class="num">303</td><td class="num">1.0%</td><td class="num">15.0</td><td class="num">11,345</td></tr>
+          <tr><td>Mar 20–26</td><td class="num">50</td><td class="num">29</td><td class="num" style="color:#27500A">172%</td><td class="num">37.3K</td><td class="num">311</td><td class="num">0.8%</td><td class="num">12.2</td><td class="num">8,572</td></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">57</td><td class="num">31</td><td class="num" style="color:#27500A">184%</td><td class="num">27.1K</td><td class="num">310</td><td class="num">1.1%</td><td class="num">15.7</td><td class="num">10,952</td></tr>
+          <tr><td>Apr 3–9</td><td class="num">34</td><td class="num">38</td><td class="num" style="color:#27500A">89%</td><td class="num">17.4K</td><td class="num">158</td><td class="num">0.9%</td><td class="num">13.9</td><td class="num">—</td></tr>
+          <tr><td style="font-weight:500;color:var(--color-text-primary)">Apr MTD</td><td class="num" style="font-weight:500;color:var(--color-text-primary)">66</td><td class="num">43</td><td class="num" style="color:#27500A;font-weight:500">153%</td><td class="num">24.6K</td><td class="num">252</td><td class="num">1.0%</td><td class="num">14.4</td><td class="num">—</td></tr>
+        </table>
       </div>
     </div>
 
-    <!-- PAGE 3: BUCKET TESTS -->
+    <!-- ==================== PAGE 3: BUCKET TESTS ==================== -->
     <div id="p3" class="page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Bucket tests — experiment to date</div>
-          <div class="page-sub">ICM · INT · TF · Source: BigQuery via GA4</div>
+      <div class="dash-header">
+        <div><div class="dash-title">Bucket tests — experiment to date</div><div class="dash-subtitle">INT · ICM · TF  ·  Source: BigQuery via GA4</div></div>
+      </div>
+      <div class="exp-grid">
+        <!-- Intelius -->
+        <div class="exp-card">
+          <div class="exp-name">intelius_map_image_test</div>
+          <div class="exp-brand">Intelius</div>
+          <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:6px">27 days · Mar 12 – Present</div>
+          <div class="exp-row">
+            <div class="variant-box winner"><div class="variant-label">Control</div><div class="variant-rate green">0.11%</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">conv rate</div></div>
+            <div class="exp-vs">vs</div>
+            <div class="variant-box loser"><div class="variant-label">map_image_test</div><div class="variant-rate gray">0.10%</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">conv rate</div></div>
+          </div>
+          <div><span class="lift-badge lift-neg">-9.5% lift</span></div>
+        </div>
+        <!-- ICM -->
+        <div class="exp-card">
+          <div class="exp-name">seo_bucket_2026_02_19</div>
+          <div class="exp-brand">InstantCheckmate</div>
+          <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:6px">48 days · Feb 19 – Present</div>
+          <div class="exp-row">
+            <div class="variant-box loser"><div class="variant-label">bottom_content</div><div class="variant-rate gray">0.041%</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">conv rate</div></div>
+            <div class="exp-vs">vs</div>
+            <div class="variant-box winner"><div class="variant-label">no_block_content</div><div class="variant-rate green">0.043%</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">conv rate</div></div>
+          </div>
+          <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:4px">collapsible_content: 0.044% conv</div>
+          <div><span class="lift-badge">+6.1% lift vs bottom</span></div>
+        </div>
+        <!-- TruthFinder -->
+        <div class="exp-card">
+          <div class="exp-name">seo_bucket_2026_02</div>
+          <div class="exp-brand">TruthFinder</div>
+          <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:6px">44 days · Feb 23 – Present</div>
+          <div class="exp-row">
+            <div class="variant-box winner"><div class="variant-label">Control</div><div class="variant-rate green">0.19%</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">conv rate</div></div>
+            <div class="exp-vs">vs</div>
+            <div class="variant-box loser"><div class="variant-label">two_pane_test</div><div class="variant-rate gray">0.17%</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">conv rate</div></div>
+          </div>
+          <div><span class="lift-badge lift-neg">-10.9% lift</span></div>
         </div>
       </div>
-      <div id="p3-content">
-        <div class="loading-overlay"><div class="spinner"></div>Loading data…</div>
+
+      <!-- Detailed experiment table -->
+      <div class="chart-card" style="margin-top:4px">
+        <div class="chart-label">Experiment detail — GA4 + GSC metrics (to date)</div>
+        <table class="trend-table">
+          <tr><th>Brand</th><th>Experiment</th><th>Variant</th><th class="num">Sessions</th><th class="num">Purchases</th><th class="num">Conv rate</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th></tr>
+          <tr><td>Intelius</td><td>intelius_map_image_test</td><td>control</td><td class="num">576,808</td><td class="num">627</td><td class="num">0.109%</td><td class="num">2,369,001</td><td class="num">485,130</td><td class="num">20.5%</td></tr>
+          <tr><td>Intelius</td><td>intelius_map_image_test</td><td>map_image_test</td><td class="num">575,326</td><td class="num">566</td><td class="num">0.098%</td><td class="num">2,284,923</td><td class="num">480,268</td><td class="num">21.0%</td></tr>
+          <tr><td colspan="9" style="height:8px;border:none"></td></tr>
+          <tr><td>Instant Checkmate</td><td>seo_bucket_2026_02_19</td><td>bottom_content</td><td class="num">335,469</td><td class="num">139</td><td class="num">0.041%</td><td class="num">1,553,984</td><td class="num">147,032</td><td class="num">9.5%</td></tr>
+          <tr><td>Instant Checkmate</td><td>seo_bucket_2026_02_19</td><td>collapsible_content</td><td class="num">348,090</td><td class="num">153</td><td class="num">0.044%</td><td class="num">1,501,787</td><td class="num">146,128</td><td class="num">9.7%</td></tr>
+          <tr><td>Instant Checkmate</td><td>seo_bucket_2026_02_19</td><td>no_block_content</td><td class="num">333,066</td><td class="num">143</td><td class="num">0.043%</td><td class="num">1,198,743</td><td class="num">125,811</td><td class="num">10.5%</td></tr>
+          <tr><td colspan="9" style="height:8px;border:none"></td></tr>
+          <tr><td>Truth Finder</td><td>seo_bucket_2026_02</td><td>control</td><td class="num">494,348</td><td class="num">939</td><td class="num">0.190%</td><td class="num">3,246,830</td><td class="num">479,659</td><td class="num">14.8%</td></tr>
+          <tr><td>Truth Finder</td><td>seo_bucket_2026_02</td><td>two_pane_test</td><td class="num">489,981</td><td class="num">829</td><td class="num">0.169%</td><td class="num">3,706,260</td><td class="num">485,435</td><td class="num">13.1%</td></tr>
+        </table>
+      </div>
+
+      <!-- Analysis -->
+      <div class="analysis-card">
+        <div class="chart-label">Bucket testing analysis</div>
+        <div class="analysis-text">
+          <strong>Intelius Map Image Test:</strong> The map_image_test variant successfully increased CTR to 21.02%, though the control variant retained a slightly higher conversion rate of 0.11%.<br><br>
+          <strong>Instant Checkmate Content Test:</strong> The no_block_content variant achieved the highest CTR in its group at 10.50%, outperforming both collapsible_content (9.73%) and bottom_content (9.46%).<br><br>
+          <strong>TruthFinder Layout Test:</strong> The control variant is currently the winner, leading the two_pane_test in all primary metrics, including a 0.19% conversion rate compared to 0.17%.
+        </div>
       </div>
     </div>
 
-    <!-- PAGE 4: SEARCH APPEARANCE -->
+    <!-- ==================== PAGE 4: AEO METRICS ==================== -->
     <div id="p4" class="page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Search appearance — GSC health metrics</div>
-          <div class="page-sub">Source: Google Search Console · Data begins Nov 24, 2025</div>
+      <div class="dash-header">
+        <div><div class="dash-title">Answer Engine Optimization (AEO)</div><div class="dash-subtitle">Source: Profound (tryprofound.com) · Week of Apr 3–9, 2026</div></div>
+      </div>
+
+      <!-- Visibility Score Cards -->
+      <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px">Visibility score by brand</div>
+      <div class="aeo-grid">
+        <div class="aeo-card high">
+          <div class="aeo-brand">TF</div>
+          <div class="aeo-val green">0.627</div>
+          <div class="aeo-sub">visibility</div>
+          <div class="aeo-wow up">+0.012 WoW</div>
+        </div>
+        <div class="aeo-card high">
+          <div class="aeo-brand">INT</div>
+          <div class="aeo-val green">0.542</div>
+          <div class="aeo-sub">visibility</div>
+          <div class="aeo-wow up">+0.043 WoW</div>
+        </div>
+        <div class="aeo-card none">
+          <div class="aeo-brand">ICM</div>
+          <div class="aeo-val muted">0.0</div>
+          <div class="aeo-sub">visibility</div>
+          <div class="aeo-wow down">-0.415 WoW</div>
+        </div>
+        <div class="aeo-card none">
+          <div class="aeo-brand">USS</div>
+          <div class="aeo-val muted">0.0</div>
+          <div class="aeo-sub">visibility</div>
+          <div class="aeo-wow flat">— WoW</div>
+        </div>
+        <div class="aeo-card none">
+          <div class="aeo-brand">OW</div>
+          <div class="aeo-val muted">0.0</div>
+          <div class="aeo-sub">visibility</div>
+          <div class="aeo-wow down">-0.013 WoW</div>
         </div>
       </div>
-      <div id="p4-content">
-        <div class="loading-overlay"><div class="spinner"></div>Loading data…</div>
+
+      <!-- AEO Detail Tables -->
+      <div class="brand-section">
+        <div class="brand-head">TruthFinder AEO</div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Visibility</th><th class="num">WoW</th><th class="num">Share of Voice</th><th class="num">WoW</th><th class="num">Avg Position</th><th class="num">WoW</th><th class="num">Citation Share</th><th class="num">WoW</th></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">0.615</td><td class="num">—</td><td class="num">0.085</td><td class="num">—</td><td class="num">3.3</td><td class="num">—</td><td class="num">0.004</td><td class="num">—</td></tr>
+          <tr><td>Apr 3–9</td><td class="num" style="font-weight:500">0.627</td><td class="num" style="color:#3B6D11">+0.012</td><td class="num">0.084</td><td class="num" style="color:#A32D2D">-0.001</td><td class="num">3.3</td><td class="num">0.0</td><td class="num">0.004</td><td class="num">0.0</td></tr>
+        </table>
+      </div>
+
+      <div class="brand-section">
+        <div class="brand-head">Intelius AEO</div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Visibility</th><th class="num">WoW</th><th class="num">Share of Voice</th><th class="num">WoW</th><th class="num">Avg Position</th><th class="num">WoW</th><th class="num">Citation Share</th><th class="num">WoW</th></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">0.499</td><td class="num">—</td><td class="num">0.068</td><td class="num">—</td><td class="num">4.8</td><td class="num">—</td><td class="num">0.006</td><td class="num">—</td></tr>
+          <tr><td>Apr 3–9</td><td class="num" style="font-weight:500">0.542</td><td class="num" style="color:#3B6D11">+0.043</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-0.068</td><td class="num">5.0</td><td class="num">+0.2</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-0.006</td></tr>
+        </table>
+      </div>
+
+      <div class="brand-section">
+        <div class="brand-head">InstantCheckmate AEO</div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Visibility</th><th class="num">WoW</th><th class="num">Share of Voice</th><th class="num">WoW</th><th class="num">Avg Position</th><th class="num">WoW</th><th class="num">Citation Share</th><th class="num">WoW</th></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">0.415</td><td class="num">—</td><td class="num">0.057</td><td class="num">—</td><td class="num">4.1</td><td class="num">—</td><td class="num">0.004</td><td class="num">—</td></tr>
+          <tr><td>Apr 3–9</td><td class="num" style="font-weight:500">0.0</td><td class="num" style="color:#A32D2D">-0.415</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-0.057</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-4.1</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-0.004</td></tr>
+        </table>
+      </div>
+
+      <div class="brand-section">
+        <div class="brand-head">OmniWatch AEO</div>
+        <table class="trend-table">
+          <tr><th>Period</th><th class="num">Visibility</th><th class="num">WoW</th><th class="num">Share of Voice</th><th class="num">WoW</th><th class="num">Avg Position</th><th class="num">WoW</th><th class="num">Citation Share</th><th class="num">WoW</th></tr>
+          <tr><td>Mar 27–Apr 2</td><td class="num">0.013</td><td class="num">—</td><td class="num">0.002</td><td class="num">—</td><td class="num">6.1</td><td class="num">—</td><td class="num">0.001</td><td class="num">—</td></tr>
+          <tr><td>Apr 3–9</td><td class="num" style="font-weight:500">0.0</td><td class="num" style="color:#A32D2D">-0.013</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-0.002</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-6.1</td><td class="num">0.0</td><td class="num" style="color:#A32D2D">-0.001</td></tr>
+        </table>
+      </div>
+
+      <div class="note-box">USSearch has no AEO data for the current period. AEO data sourced from Profound (tryprofound.com). Visibility Score reflects relative brand positioning in AI-generated answers.</div>
+    </div>
+
+    <!-- ==================== PAGE 5: SEARCH APPEARANCE ==================== -->
+    <div id="p5" class="page">
+      <div class="dash-header">
+        <div><div class="dash-title">Search appearance — GSC health metrics</div><div class="dash-subtitle">Source: Google Search Console · Week of Apr 3–9, 2026</div></div>
+      </div>
+      <div class="gsc-grid">
+        <div class="ctr-card good"><div class="ctr-brand">TF</div><div class="ctr-val good">5.3%</div><div style="font-size:10px;color:#27500A">CTR</div></div>
+        <div class="ctr-card good"><div class="ctr-brand">INT</div><div class="ctr-val good">4.5%</div><div style="font-size:10px;color:#27500A">CTR</div></div>
+        <div class="ctr-card good"><div class="ctr-brand">ICM</div><div class="ctr-val good">4.3%</div><div style="font-size:10px;color:#27500A">CTR</div></div>
+        <div class="ctr-card low"><div class="ctr-brand">USS</div><div class="ctr-val low">2.6%</div><div style="font-size:10px;color:#633806">CTR</div></div>
+        <div class="ctr-card mid"><div class="ctr-brand">OW</div><div class="ctr-val mid">0.9%</div><div style="font-size:10px;color:var(--color-text-tertiary)">CTR</div></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:12px">
+        <div class="chart-label">Impressions vs clicks by brand — week of Apr 3–9</div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:4px">
+          <div style="text-align:center">
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px">INT</div>
+            <div style="height:80px;display:flex;align-items:flex-end;gap:4px;justify-content:center">
+              <div style="width:18px;background:#185FA5;opacity:0.8;border-radius:2px 2px 0 0;height:80px"></div>
+              <div style="width:18px;background:#185FA5;opacity:0.4;border-radius:2px 2px 0 0;height:36px"></div>
+            </div>
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:3px">3.9M / 176K</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px">TF</div>
+            <div style="height:80px;display:flex;align-items:flex-end;gap:4px;justify-content:center">
+              <div style="width:18px;background:#185FA5;opacity:0.8;border-radius:2px 2px 0 0;height:45px"></div>
+              <div style="width:18px;background:#185FA5;opacity:0.4;border-radius:2px 2px 0 0;height:24px"></div>
+            </div>
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:3px">2.2M / 115K</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px">USS</div>
+            <div style="height:80px;display:flex;align-items:flex-end;gap:4px;justify-content:center">
+              <div style="width:18px;background:#185FA5;opacity:0.8;border-radius:2px 2px 0 0;height:20px"></div>
+              <div style="width:18px;background:#185FA5;opacity:0.4;border-radius:2px 2px 0 0;height:5px"></div>
+            </div>
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:3px">996K / 26K</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px">ICM</div>
+            <div style="height:80px;display:flex;align-items:flex-end;gap:4px;justify-content:center">
+              <div style="width:18px;background:#185FA5;opacity:0.8;border-radius:2px 2px 0 0;height:11px"></div>
+              <div style="width:18px;background:#185FA5;opacity:0.4;border-radius:2px 2px 0 0;height:5px"></div>
+            </div>
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:3px">557K / 24K</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--color-text-tertiary)">
+          <span><span style="display:inline-block;width:8px;height:8px;background:#185FA5;opacity:0.8;border-radius:1px;margin-right:4px"></span>Impressions</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#185FA5;opacity:0.4;border-radius:1px;margin-right:4px"></span>Clicks</span>
+        </div>
+      </div>
+
+      <!-- Avg Position cards -->
+      <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;margin-top:14px">Average position by brand</div>
+      <div class="gsc-grid">
+        <div class="ctr-card good"><div class="ctr-brand">INT</div><div class="ctr-val good">6.8</div><div style="font-size:10px;color:#27500A">Avg Pos</div></div>
+        <div class="ctr-card good"><div class="ctr-brand">TF</div><div class="ctr-val good">7.7</div><div style="font-size:10px;color:#27500A">Avg Pos</div></div>
+        <div class="ctr-card mid"><div class="ctr-brand">ICM</div><div class="ctr-val mid">9.6</div><div style="font-size:10px;color:var(--color-text-tertiary)">Avg Pos</div></div>
+        <div class="ctr-card low"><div class="ctr-brand">USS</div><div class="ctr-val low">11.0</div><div style="font-size:10px;color:#633806">Avg Pos</div></div>
+        <div class="ctr-card low"><div class="ctr-brand">OW</div><div class="ctr-val low">13.9</div><div style="font-size:10px;color:#633806">Avg Pos</div></div>
       </div>
     </div>
 
-    <!-- PAGE 5: DEFINITIONS -->
-    <div id="p5" class="page">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Data definitions & methodology</div>
-          <div class="page-sub">Internal reference — PeopleConnect SEO / Martech</div>
-        </div>
+    <!-- ==================== PAGE 6: DATA DEFINITIONS ==================== -->
+    <div id="p6" class="page">
+      <div class="dash-header">
+        <div><div class="dash-title">Data definitions & methodology</div><div class="dash-subtitle">Internal reference — PeopleConnect SEO / Martech</div></div>
       </div>
       <div class="def-section">
         <div class="def-head">Data sources</div>
         <table class="def-table">
-          <tr><td>Snowflake</td><td>Sales / gross adds data via Supermetrics. Refreshes Monday 6 am. Source: bi_layer_db.prod.exp_daily_sales_metrics</td></tr>
-          <tr><td>Google Search Console</td><td>Impressions, clicks, CTR, avg position. Data begins Nov 24, 2025. Source: PC_FIVETRAN_DB.GSC.SITE_REPORT_BY_SITE</td></tr>
-          <tr><td>BigQuery / GA4</td><td>Bucket test sessions and purchases. Refreshes daily. Source: ga-bigquery-319917.analytics_472677824.events_*</td></tr>
+          <tr><td>Snowflake</td><td>Sales / gross adds. Supermetrics refresh weekly. Source: bi_layer_db.prod.exp_daily_sales_metrics</td></tr>
+          <tr><td>Google Search Console</td><td>Impressions, clicks, CTR, avg position. Data begins Nov 24, 2025. Source: PC_FIVETRAN_DB.GSC</td></tr>
+          <tr><td>BigQuery / GA4</td><td>Bucket test sessions and purchases. Refreshes daily. Source: ga-bigquery-319917.analytics_472677824</td></tr>
+          <tr><td>Profound</td><td>AEO (Answer Engine Optimization) metrics — Visibility Score, Share of Voice, Average Position, Citation Share. Source: tryprofound.com</td></tr>
+        </table>
+      </div>
+      <div class="def-section">
+        <div class="def-head">GSC — Google Search Console</div>
+        <table class="def-table">
+          <tr><td>Total Clicks</td><td>Measures the number of users who clicked from a Google search result to your website.</td></tr>
+          <tr><td>Total Impressions</td><td>Tracks how many times your website appeared in search results, acting as a leading indicator of visibility.</td></tr>
+          <tr><td>Average CTR</td><td>The ratio of clicks to impressions. A higher CTR indicates your title tags and meta descriptions are compelling.</td></tr>
+          <tr><td>Average Position</td><td>Indicates where your pages rank on average in the SERPs. A lower number is better.</td></tr>
+        </table>
+      </div>
+      <div class="def-section">
+        <div class="def-head">AEO — Answer Engine Optimization</div>
+        <table class="def-table">
+          <tr><td>Visibility Score</td><td>The relative position of your brand compared to other brands based on how often it appeared in AI-generated answers.</td></tr>
+          <tr><td>Share of Voice</td><td>Your brand's ranking based on how frequently it is mentioned across prompts versus other brands in your space.</td></tr>
+          <tr><td>Average Position</td><td>Your brand's ranking compared to other brands based on its average position in AI-generated answers. Note: the rank is only calculated among the top 50 most visible brands.</td></tr>
+          <tr><td>Citation Rank</td><td>Your brand's position compared to others based on how often your website is cited in AI-generated answers.</td></tr>
         </table>
       </div>
       <div class="def-section">
         <div class="def-head">Metric definitions</div>
         <table class="def-table">
-          <tr><td>Gross adds</td><td>Net new paid subscriptions attributed to the SEO / Organic channel for the period.</td></tr>
-          <tr><td>Target</td><td>Weekly gross adds goal set by the business. Sourced from Snowflake targets table.</td></tr>
-          <tr><td>% to goal</td><td>Gross Adds ÷ Target. Values above 100% indicate goal was exceeded.</td></tr>
-          <tr><td>Impressions</td><td>Total times a brand URL appeared in Google Search results (GSC).</td></tr>
-          <tr><td>Clicks</td><td>Total clicks from Google Search results to the brand site (GSC).</td></tr>
-          <tr><td>Avg CTR</td><td>Clicks ÷ Impressions. Calculated from GSC data.</td></tr>
-          <tr><td>Organic conv rate</td><td>Gross Adds ÷ GSC Clicks. Exception: OmniWatch uses GA4 Organic Sessions as denominator (not GSC clicks) due to channel definition differences.</td></tr>
-          <tr><td>Avg position</td><td>Average Google Search ranking position for the brand's pages. Lower = better.</td></tr>
-          <tr><td>Weekly period</td><td>Friday–Thursday, anchored to 2026-01-01 (a known Thursday) via modular arithmetic in Snowflake SQL.</td></tr>
+          <tr><td>Gross adds</td><td>Net new paid subscriptions attributed to SEO / Organic channel for the period.</td></tr>
+          <tr><td>% to goal</td><td>Gross Adds / Target. Values above 100% indicate goal was exceeded.</td></tr>
+          <tr><td>Organic conv rate</td><td>Gross Adds / GSC Clicks. Exception: OmniWatch uses GA4 Organic Sessions as denominator.</td></tr>
+          <tr><td>Avg position</td><td>Average Google Search ranking for brand pages. Lower is better.</td></tr>
+          <tr><td>Weekly period</td><td>Friday–Thursday. Anchored to 2026-01-01 (a Thursday) via modular arithmetic.</td></tr>
         </table>
       </div>
-      <div class="def-section">
-        <div class="def-head">OmniWatch special handling</div>
-        <table class="def-table">
-          <tr><td>Channel filter</td><td>OW uses channel__name = 'Organic' (not 'SEO' like other brands). Organic = Direct + Organic Search + Organic Social.</td></tr>
-          <tr><td>Conv rate</td><td>OW conversion rate uses GA4 Organic Sessions as denominator, not GSC clicks. Currently a manual input (orange column in Business Outcomes tab).</td></tr>
-          <tr><td>Totals</td><td>OW is excluded from all "Core Brands" totals. It is tracked separately.</td></tr>
-        </table>
-      </div>
-      <div class="note-box">
-        GSC data prior to Nov 24, 2025 is unavailable. GA4 data begins Aug 17, 2025. Periods prior to these dates will show null for the respective metrics. The executive summary narrative is generated via the Claude API (Anthropic) using Apps Script connected to this workbook.
-      </div>
+      <div class="note-box">OmniWatch is excluded from core brands totals. It is measured on Organic channel (Direct + Organic Search + Organic Social), not SEO-only, and its conversion rate is not comparable to other brands. GSC data prior to Nov 24, 2025 is unavailable. AEO data sourced from Profound; USSearch has no AEO presence in the current period.</div>
     </div>
 
-  </div><!-- /canvas -->
-</div><!-- /app -->
+  </div>
+</div>
 
 <script>
-// ─────────────────────────────────────────────
-// CONFIG — update these two values before deploy
-// ─────────────────────────────────────────────
-const CONFIG = {
-  // SHA-256 hash of your chosen password.
-  // Default hash below = "seo2026" — change via README instructions.
-  passwordHash: "529ba3575997143d428e08d66cd29c29c8afc680c954d70e1d818c9c31b64d98",
-
-  // Your Google Sheet ID (from the URL: /spreadsheets/d/SHEET_ID/edit)
-  // Replace with your actual Sheet ID once the Dashboard_Output tab exists.
-  sheetId: "12839RaH1MuzRtuLBXdWPgapyKsDfkPpKvyuTDIinnoE",
-
-  // Name of the output tab Apps Script writes to
-  sheetTab: "Dashboard_Output",
-
-  // Auto-refresh interval in minutes (0 = no auto-refresh)
-  refreshInterval: 30,
-};
-// ─────────────────────────────────────────────
-
-// ── FALLBACK DATA (used when Sheet not yet connected) ──
-const FALLBACK = {
-  meta: { weekLabel: "Mar 20–26, 2026", refreshed: "Demo mode — connect your Sheet to see live data" },
-  brands: [
-    { code:"ICM", name:"InstantCheckmate", gross:77,  target:238,  pct:0.32, impressions:1165821, clicks:48170,  ctr:0.041, convRate:0.0016 },
-    { code:"INT", name:"Intelius",         gross:903, target:979,  pct:0.92, impressions:8142779, clicks:354499, ctr:0.044, convRate:0.0025 },
-    { code:"OW",  name:"OmniWatch",        gross:50,  target:29,   pct:1.72, impressions:34000,   clicks:308,    ctr:0.009, convRate:0.1623 },
-    { code:"TF",  name:"TruthFinder",      gross:684, target:1259, pct:0.54, impressions:4171356, clicks:229928, ctr:0.055, convRate:0.0030 },
-    { code:"USS", name:"USSearch",         gross:37,  target:63,   pct:0.59, impressions:1230000, clicks:33200,  ctr:0.027, convRate:0.0011 },
-  ],
-  totals: { gross:1751, target:2568, pct:0.68, coreGross:1723, coreTarget:2525, corePct:0.68, impressions:14743956, clicks:666105, ctr:0.045, convRate:0.0026 },
-  summary: "Core SEO brands (ICM, TF, INT, USS) totaled 1,723 gross adds, reaching 68% of target (2,525).\n\nIntelius led at 92% to goal. USSearch at 59%, TruthFinder at 54%, InstantCheckmate at 32%.\n\nOrganic search generated 14.7M impressions and ~666K clicks. CTR ranged from 2.7% (USS) to 5.5% (TF).\n\nOmniWatch delivered 172% to goal for the week.",
-  trend: {
-    ICM: [
-      { period:"Feb 27–Mar 5",  gross:135, target:218, pct:0.62, imp:1468247, clicks:57087,  ctr:0.039, conv:0.0024 },
-      { period:"Mar 6–12",      gross:138, target:224, pct:0.62, imp:1315091, clicks:52437,  ctr:0.040, conv:0.0026 },
-      { period:"Mar 13–19",     gross:105, target:224, pct:0.47, imp:1175311, clicks:48563,  ctr:0.041, conv:0.0022 },
-      { period:"Mar 20–26",     gross:99,  target:224, pct:0.44, imp:1165821, clicks:48170,  ctr:0.041, conv:0.0021 },
-      { period:"Mar MTD",       gross:439, target:867, pct:0.51, imp:4741103, clicks:191144, ctr:0.040, conv:0.0023, isMtd:true },
-    ],
-    INT: [
-      { period:"Feb 27–Mar 5",  gross:843, target:957,  pct:0.88, imp:8181045,  clicks:277735,  ctr:0.034, conv:0.0030 },
-      { period:"Mar 6–12",      gross:870, target:979,  pct:0.89, imp:8595962,  clicks:325643,  ctr:0.038, conv:0.0027 },
-      { period:"Mar 13–19",     gross:918, target:979,  pct:0.94, imp:8535526,  clicks:359354,  ctr:0.042, conv:0.0026 },
-      { period:"Mar 20–26",     gross:903, target:979,  pct:0.92, imp:8142779,  clicks:354499,  ctr:0.044, conv:0.0025 },
-      { period:"Mar MTD",       gross:3333,target:3792, pct:0.88, imp:31549674, clicks:1250625, ctr:0.040, conv:0.0027, isMtd:true },
-    ],
-    OW: [
-      { period:"Feb 27–Mar 5",  gross:43,  target:27,  pct:1.59, imp:37500, clicks:343, ctr:0.009, conv:0.1254 },
-      { period:"Mar 6–12",      gross:36,  target:29,  pct:1.24, imp:31400, clicks:343, ctr:0.011, conv:0.1050 },
-      { period:"Mar 13–19",     gross:60,  target:29,  pct:2.07, imp:27500, clicks:301, ctr:0.011, conv:0.1993 },
-      { period:"Mar 20–26",     gross:50,  target:29,  pct:1.72, imp:34000, clicks:308, ctr:0.009, conv:0.1623 },
-      { period:"Mar MTD",       gross:179, target:110, pct:1.63, imp:121000,clicks:1200,ctr:0.010, conv:0.1492, isMtd:true },
-    ],
-    TF: [
-      { period:"Feb 27–Mar 5",  gross:788, target:1182, pct:0.67, imp:4685241, clicks:263100, ctr:0.056, conv:0.0030 },
-      { period:"Mar 6–12",      gross:800, target:1259, pct:0.64, imp:4444544, clicks:238470, ctr:0.054, conv:0.0034 },
-      { period:"Mar 13–19",     gross:731, target:1259, pct:0.58, imp:4249830, clicks:233557, ctr:0.055, conv:0.0031 },
-      { period:"Mar 20–26",     gross:684, target:1259, pct:0.54, imp:4171356, clicks:229928, ctr:0.055, conv:0.0030 },
-      { period:"Mar MTD",       gross:2752,target:4876, pct:0.56, imp:16341465,clicks:889211, ctr:0.054, conv:0.0031, isMtd:true },
-    ],
-    USS: [
-      { period:"Feb 27–Mar 5",  gross:62, target:63, pct:0.98, imp:2140000, clicks:53300, ctr:0.025, conv:0.0012 },
-      { period:"Mar 6–12",      gross:45, target:63, pct:0.71, imp:1710000, clicks:43000, ctr:0.025, conv:0.0010 },
-      { period:"Mar 13–19",     gross:27, target:63, pct:0.43, imp:1470000, clicks:39300, ctr:0.027, conv:0.0007 },
-      { period:"Mar 20–26",     gross:37, target:63, pct:0.59, imp:1230000, clicks:33200, ctr:0.027, conv:0.0011 },
-      { period:"Mar MTD",       gross:150,target:244,pct:0.61, imp:5920000, clicks:153000,ctr:0.026, conv:0.0010, isMtd:true },
-    ],
-  },
-  buckets: [
-    { brand:"InstantCheckmate", slug:"icm_people_search_test",   controlRate:0.0021, variantRate:0.0024, lift:0.14 },
-    { brand:"Intelius",         slug:"intelius_map_image_test",   controlRate:0.0027, variantRate:0.0029, lift:0.07 },
-    { brand:"TruthFinder",      slug:"seo_bucket_2026_02",        controlRate:0.0031, variantRate:0.0028, lift:-0.10 },
-  ],
-};
-
-// ── UTILITIES ──
-function fmt(n, decimals=0) {
-  if (n == null || n === '') return '—';
-  return Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-}
-function fmtPct(n, decimals=1) {
-  if (n == null || n === '') return '—';
-  return (Number(n)*100).toFixed(decimals) + '%';
-}
-function fmtBig(n) {
-  if (n == null) return '—';
-  n = Number(n);
-  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
-  if (n >= 1e3) return (n/1e3).toFixed(0) + 'K';
-  return fmt(n);
-}
-function pctClass(p) {
-  p = Number(p);
-  if (p >= 1.0) return 'green';
-  if (p >= 0.75) return 'amber';
-  return 'red';
-}
-function pctTdClass(p) {
-  p = Number(p);
-  if (p >= 1.0) return 'pct-green';
-  if (p >= 0.75) return 'pct-amber';
-  return 'pct-red';
-}
-
-// ── PASSWORD ──
-async function sha256(msg) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-async function checkPassword() {
-  const val = document.getElementById('gate-input').value;
-  const hash = await sha256(val);
-  if (hash === CONFIG.passwordHash) {
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadDashboard();
-  } else {
-    document.getElementById('gate-error').textContent = 'Incorrect password. Please try again.';
-    document.getElementById('gate-input').value = '';
-    document.getElementById('gate-input').focus();
-  }
-}
-document.getElementById('gate-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkPassword();
-});
-
-// ── NAVIGATION ──
 function showPage(id, tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ls-tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   tab.classList.add('active');
-}
-
-// ── DATA LOADING ──
-async function loadDashboard() {
-  setStatus('loading');
-  let data = FALLBACK;
-  let usingLive = false;
-
-  if (CONFIG.sheetId && CONFIG.sheetId !== 'YOUR_SHEET_ID_HERE') {
-    try {
-      const url = `https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(CONFIG.sheetTab)}`;
-      const res = await fetch(url);
-      const txt = await res.text();
-      const json = JSON.parse(txt.substring(47).slice(0,-2));
-      data = parseSheetData(json);
-      usingLive = true;
-    } catch(e) {
-      showError('Could not load live data from Google Sheets. Showing demo data. Check that your Sheet ID is correct and the sheet is shared (Anyone with link can view).');
-      console.error('Sheet load error:', e);
-    }
-  }
-
-  renderAll(data);
-  setStatus(usingLive ? 'live' : 'demo');
-
-  if (CONFIG.refreshInterval > 0) {
-    setTimeout(() => loadDashboard(), CONFIG.refreshInterval * 60 * 1000);
-  }
-}
-
-function parseSheetData(json) {
-  // Parses the Dashboard_Output tab written by Apps Script
-  // Row layout defined in Apps Script (see apps-script.js)
-  // Falls back to FALLBACK if parse fails
-  try {
-    const rows = json.table.rows;
-    function cell(r, c) {
-      return rows[r] && rows[r].c && rows[r].c[c] ? rows[r].c[c].v : null;
-    }
-
-    const meta = { weekLabel: cell(1,1), refreshed: 'Live from Google Sheets' };
-
-    const brands = [];
-    for (let i = 4; i <= 8; i++) {
-      brands.push({
-        code:        cell(i,0),
-        name:        cell(i,1),
-        gross:       Number(cell(i,2)||0),
-        target:      Number(cell(i,3)||0),
-        pct:         Number(cell(i,4)||0),
-        impressions: Number(cell(i,5)||0),
-        clicks:      Number(cell(i,6)||0),
-        ctr:         Number(cell(i,7)||0),
-        convRate:    Number(cell(i,8)||0),
-      });
-    }
-
-    const tr = rows[10] && rows[10].c ? rows[10].c : [];
-    const totals = {
-      gross:       Number((tr[2]||{}).v||0),
-      target:      Number((tr[3]||{}).v||0),
-      pct:         Number((tr[4]||{}).v||0),
-      coreGross:   Number((tr[5]||{}).v||0),
-      coreTarget:  Number((tr[6]||{}).v||0),
-      corePct:     Number((tr[7]||{}).v||0),
-      impressions: Number((tr[8]||{}).v||0),
-      clicks:      Number((tr[9]||{}).v||0),
-      ctr:         Number((tr[10]||{}).v||0),
-      convRate:    Number((tr[11]||{}).v||0),
-    };
-
-    const summary = cell(13, 1) || FALLBACK.summary;
-
-    // Trend rows: start at row 16, 5 rows per brand × 5 brands
-    const trend = {};
-    const brandCodes = ['ICM','INT','OW','TF','USS'];
-    brandCodes.forEach((code, bi) => {
-      trend[code] = [];
-      for (let ri = 0; ri < 5; ri++) {
-        const r = 16 + bi*6 + ri;
-        if (!rows[r]) continue;
-        trend[code].push({
-          period: cell(r,0),
-          gross:  Number(cell(r,1)||0),
-          target: Number(cell(r,2)||0),
-          pct:    Number(cell(r,3)||0),
-          imp:    Number(cell(r,4)||0),
-          clicks: Number(cell(r,5)||0),
-          ctr:    Number(cell(r,6)||0),
-          conv:   Number(cell(r,7)||0),
-          isMtd:  (cell(r,0)||'').toString().includes('MTD'),
-        });
-      }
-    });
-
-    // Bucket rows: start at row 50
-    const buckets = [];
-    for (let i = 0; i < 3; i++) {
-      const r = 50 + i;
-      if (!rows[r]) continue;
-      buckets.push({
-        brand:       cell(r,0),
-        slug:        cell(r,1),
-        controlRate: Number(cell(r,2)||0),
-        variantRate: Number(cell(r,3)||0),
-        lift:        Number(cell(r,4)||0),
-      });
-    }
-
-    return { meta, brands, totals, summary, trend, buckets };
-  } catch(e) {
-    console.error('Parse error:', e);
-    return FALLBACK;
-  }
-}
-
-// ── RENDER ──
-function renderAll(data) {
-  renderPage1(data);
-  renderPage2(data);
-  renderPage3(data);
-  renderPage4(data);
-}
-
-function renderPage1(d) {
-  document.getElementById('p1-title').textContent = 'Week of ' + (d.meta.weekLabel || '—');
-  document.getElementById('p1-daterange').textContent = d.meta.weekLabel || '—';
-  document.getElementById('summary-label').textContent = 'Executive summary — ' + (d.meta.weekLabel || '');
-  document.getElementById('summary-text').textContent = d.summary || '—';
-
-  // Score cards
-  const sg = document.getElementById('score-grid');
-  sg.innerHTML = '';
-  d.brands.forEach(b => {
-    const cls = pctClass(b.pct);
-    sg.innerHTML += `
-      <div class="score-card ${cls}">
-        <div class="score-brand ${cls}">${b.code}</div>
-        <div class="score-num ${cls}">${fmt(b.gross)}</div>
-        <div class="score-target">target ${fmt(b.target)}</div>
-        <div class="score-pct ${cls}">${fmtPct(b.pct,0)} to goal</div>
-      </div>`;
-  });
-
-  // KPIs
-  const kpi = document.getElementById('kpi-row');
-  const t = d.totals;
-  kpi.innerHTML = `
-    <div class="kpi"><div class="kpi-label">Total impressions</div><div class="kpi-val">${fmtBig(t.impressions)}</div><div class="kpi-sub">all brands</div></div>
-    <div class="kpi"><div class="kpi-label">Total clicks</div><div class="kpi-val">${fmtBig(t.clicks)}</div><div class="kpi-sub">all brands</div></div>
-    <div class="kpi"><div class="kpi-label">Avg CTR</div><div class="kpi-val">${fmtPct(t.ctr,1)}</div><div class="kpi-sub">core brands</div></div>
-    <div class="kpi"><div class="kpi-label">Core gross adds</div><div class="kpi-val">${fmt(t.coreGross)}</div><div class="kpi-sub">${fmtPct(t.corePct,0)} to goal</div></div>`;
-
-  // Bar chart — sort by pct desc
-  const sorted = [...d.brands].sort((a,b) => b.pct - a.pct);
-  const maxPct = Math.max(...sorted.map(b => b.pct), 1);
-  const bc = document.getElementById('bar-chart');
-  bc.innerHTML = '';
-  sorted.forEach(b => {
-    const cls = pctClass(b.pct);
-    const fillColors = { green:`background:var(--green-bg);border:0.5px solid var(--green-border)`, amber:`background:var(--amber-bg);border:0.5px solid var(--amber-border)`, red:`background:var(--red-bg);border:0.5px solid var(--red-border)` };
-    const textColors = { green:`color:var(--green-text)`, amber:`color:var(--amber-text)`, red:`color:var(--red-text)` };
-    const refPct = Math.min(100/Math.max(b.pct,0.01) * Math.min(b.pct/maxPct*100, 100) / (maxPct > 1 ? maxPct*100 : 100), 100);
-    const barWidth = Math.min((b.pct / maxPct) * 100, 100);
-    const refPos = Math.min((1.0 / maxPct) * 100, 100);
-    bc.innerHTML += `
-      <div class="bar-row">
-        <div class="bar-name">${b.code}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${barWidth}%;${fillColors[cls]}">
-            <span class="bar-pct" style="${textColors[cls]}">${fmtPct(b.pct,0)}</span>
-          </div>
-          <div class="ref-line" style="left:${refPos}%"></div>
-        </div>
-      </div>`;
-  });
-
-  document.getElementById('p1-loading').style.display = 'none';
-  document.getElementById('p1-content').style.display = 'block';
-}
-
-function sparkBars(rows) {
-  if (!rows || rows.length < 2) return '';
-  const vals = rows.filter(r => !r.isMtd).map(r => r.gross);
-  if (!vals.length) return '';
-  const mx = Math.max(...vals);
-  return '<span class="spark">' + vals.map(v => {
-    const h = Math.max(4, Math.round((v/mx)*16));
-    return `<div class="spark-bar" style="height:${h}px"></div>`;
-  }).join('') + '</span>';
-}
-
-function renderPage2(d) {
-  const brandNames = { ICM:'InstantCheckmate', INT:'Intelius', OW:'OmniWatch', TF:'TruthFinder', USS:'USSearch' };
-  const periods = Object.values(d.trend).flat().filter(r=>!r.isMtd).map(r=>r.period);
-  const range = periods.length ? periods[0] + ' – ' + periods[periods.length-1] : '—';
-  document.getElementById('p2-sub').textContent = range;
-
-  let html = '';
-  Object.entries(d.trend).forEach(([code, rows]) => {
-    html += `<div class="brand-section">
-      <div class="brand-head">${brandNames[code]||code} SEO ${sparkBars(rows)}</div>
-      <table class="data-table">
-        <tr>
-          <th>Period</th><th class="num">Gross adds</th><th class="num">Target</th>
-          <th class="num">% to goal</th><th class="num">Impressions</th>
-          <th class="num">Clicks</th><th class="num">CTR</th><th class="num">Conv rate</th>
-        </tr>`;
-    rows.forEach(r => {
-      const pc = pctTdClass(r.pct);
-      const rowCls = r.isMtd ? 'mtd-row' : '';
-      html += `<tr class="${rowCls}">
-        <td>${r.period}</td>
-        <td class="num">${fmt(r.gross)}</td>
-        <td class="num">${fmt(r.target)}</td>
-        <td class="num ${pc}">${fmtPct(r.pct,0)}</td>
-        <td class="num">${fmtBig(r.imp)}</td>
-        <td class="num">${fmtBig(r.clicks)}</td>
-        <td class="num">${fmtPct(r.ctr,1)}</td>
-        <td class="num">${fmtPct(r.conv,2)}</td>
-      </tr>`;
-    });
-    html += `</table></div>`;
-  });
-  document.getElementById('p2-content').innerHTML = html;
-}
-
-function renderPage3(d) {
-  let html = '<div class="exp-grid">';
-  d.buckets.forEach(b => {
-    const lift = b.lift;
-    const liftCls = lift > 0.02 ? '' : (lift < -0.02 ? 'neg' : 'flat');
-    const liftLabel = lift > 0 ? '+' + (lift*100).toFixed(0) + '% lift' : (lift*100).toFixed(0) + '% lift';
-    const variantWins = b.variantRate > b.controlRate;
-    html += `
-      <div class="exp-card">
-        <div class="exp-slug">${b.slug}</div>
-        <div class="exp-brand">${b.brand}</div>
-        <div class="exp-variants">
-          <div class="variant-box ${!variantWins ? 'winner' : ''}">
-            <div class="variant-label">Control</div>
-            <div class="variant-rate">${fmtPct(b.controlRate,2)}</div>
-            <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">conv rate</div>
-          </div>
-          <div class="exp-vs">vs</div>
-          <div class="variant-box ${variantWins ? 'winner' : ''}">
-            <div class="variant-label">Variant 1</div>
-            <div class="variant-rate">${fmtPct(b.variantRate,2)}</div>
-            <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">conv rate</div>
-          </div>
-        </div>
-        <span class="lift-badge ${liftCls}">${liftLabel}</span>
-      </div>`;
-  });
-  html += '</div>';
-  html += `<div class="chart-card">
-    <div class="chart-label">Weekly breakdown by variant — connect BigQuery bucket data in Supermetrics to populate</div>
-    <table class="data-table">
-      <tr><th>Period</th><th>Brand</th><th>Variant</th><th class="num">Sessions</th><th class="num">Purchases</th><th class="num">Conv rate</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th></tr>
-      <tr><td colspan="9" style="text-align:center;padding:16px;color:var(--text-tertiary);font-style:italic">Weekly granularity populates once Raw_Bucket tabs are live in Supermetrics</td></tr>
-    </table>
-  </div>`;
-  document.getElementById('p3-content').innerHTML = html;
-}
-
-function renderPage4(d) {
-  const maxImp = Math.max(...d.brands.map(b => b.impressions));
-  const maxClk = Math.max(...d.brands.map(b => b.clicks));
-  const sorted = [...d.brands].sort((a,b) => b.ctr - a.ctr);
-
-  let html = '';
-  html += '<div class="section-label" style="margin-bottom:8px">CTR by brand</div>';
-  html += '<div class="ctr-grid">';
-  sorted.forEach(b => {
-    const c = b.ctr >= 0.04 ? 'good' : b.ctr >= 0.02 ? '' : 'low';
-    html += `<div class="ctr-card ${c}">
-      <div class="ctr-brand">${b.code}</div>
-      <div class="ctr-val">${fmtPct(b.ctr,1)}</div>
-      <div class="ctr-metric-label">CTR</div>
-    </div>`;
-  });
-  html += '</div>';
-
-  html += '<div class="chart-card"><div class="chart-label">Impressions vs clicks by brand — this week</div><div class="imp-bars">';
-  d.brands.filter(b => b.code !== 'OW').forEach(b => {
-    const iw = Math.round((b.impressions/maxImp)*100);
-    const cw = Math.round((b.clicks/maxClk)*100);
-    html += `<div class="imp-brand-row">
-      <div class="imp-name">${b.code}</div>
-      <div class="imp-track">
-        <div class="imp-bar-imp" style="width:${iw}%"></div>
-        <div class="imp-bar-clk" style="width:${cw}%"></div>
-      </div>
-      <div class="imp-nums">${fmtBig(b.impressions)} / ${fmtBig(b.clicks)}</div>
-    </div>`;
-  });
-  html += '</div>';
-  html += '<div style="display:flex;gap:16px;font-size:10px;color:var(--text-tertiary);margin-top:4px">';
-  html += '<span><span style="display:inline-block;width:10px;height:6px;background:var(--blue);opacity:0.7;border-radius:1px;margin-right:4px;vertical-align:middle"></span>Impressions</span>';
-  html += '<span><span style="display:inline-block;width:10px;height:6px;background:var(--blue);opacity:0.35;border-radius:1px;margin-right:4px;vertical-align:middle"></span>Clicks</span>';
-  html += '</div></div>';
-
-  html += `<div style="margin-top:12px">
-    <table class="data-table">
-      <tr><th>Brand</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Avg position</th><th class="num">Organic conv rate</th></tr>`;
-  d.brands.forEach(b => {
-    const cc = pctTdClass(b.ctr >= 0.04 ? 1 : b.ctr >= 0.02 ? 0.8 : 0.5);
-    html += `<tr>
-      <td style="font-weight:500">${b.name||b.code}</td>
-      <td class="num">${fmt(b.impressions)}</td>
-      <td class="num">${fmt(b.clicks)}</td>
-      <td class="num ${cc}">${fmtPct(b.ctr,1)}</td>
-      <td class="num" style="color:var(--text-tertiary)">—</td>
-      <td class="num">${fmtPct(b.convRate,2)}</td>
-    </tr>`;
-  });
-  html += '</table></div>';
-
-  document.getElementById('p4-content').innerHTML = html;
-}
-
-function setStatus(state) {
-  const dot = document.getElementById('status-dot');
-  const txt = document.getElementById('status-text');
-  if (state === 'loading') {
-    dot.className = 'loading';
-    txt.textContent = 'Loading…';
-  } else if (state === 'live') {
-    dot.className = '';
-    txt.textContent = 'Live · updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-  } else {
-    dot.className = '';
-    dot.style.background = 'var(--amber-border)';
-    txt.textContent = 'Demo mode — Sheet not connected';
-  }
-}
-
-function showError(msg) {
-  const el = document.getElementById('error-banner');
-  el.textContent = msg;
-  el.style.display = 'block';
 }
 </script>
 </body>
